@@ -1,0 +1,23 @@
+@font-face {
+    font-family: myFont;
+    src: url(../fonts/PT_Sans-Web-Regular.ttf);
+}
+
+@font-face {
+    font-family: myFont;
+    src: url(../fonts/PT_Sans-Web-Bold.ttf);
+    font-weight: 700;
+}
+
+h1, h2, h3, h4, h5, h6, div, p, strong, b, body {
+	font-family: myFont;
+}
+
+div, p, strong, b, body {
+	font-size: 16px;
+}
+
+p {
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
