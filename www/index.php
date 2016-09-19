@@ -1,4 +1,6 @@
 <?
+	error_reporting(E_ALL);
+	session_start();
 	header('Content-Type: text/html; charset=utf-8');
 
 	function checkEmail($mail) {
@@ -8,6 +10,10 @@
 				return false;
 			}
 		return true;
+	}
+
+	if ($_SESSION["name"]) {
+		return;
 	}
 
 	// Показываем форму Авторизация
@@ -21,7 +27,7 @@
 
 	// Общая переменная для хранения email
 	$email = '';
-	// Флаг, указывающий на валидность email
+	// Флаг, указывающий на валидность
 	$emailIsValid = true;
 	$loginIsValid = true;
 
@@ -47,11 +53,63 @@
 
 		$emailIsValid = checkEmail($email);
 		$loginIsValid = strlen($login) >= 5;
-		$passIsValid = strlen($password) >= 4 && $login != $password && ($isRegister ? $password == $repassword : true);
+		if ($isForgot) {
+			$passIsValid = true;
+		} else {
+			$passIsValid = strlen($password) >= 4 && $login != $password && ($isRegister ? $password == $repassword : true); 
+		}
+		
+		if ($emailIsValid && $passIsValid) {
+
+			// соединяемся с базой
+			$conn = mysql_connect("localhost","nastya4835","4835"); 
+			mysql_select_db("mybd"); 
+
+			// составляем запрос
+			$query = "select name, email, password, isadmin from users where name = '". $login . "' OR email = '" . $email . "';";
+			$mysqlQuery = mysql_query($query);
+			// найден ли кто-нибудь 
+			$usersCount = mysql_num_rows($mysqlQuery);
+			$value = NULL; 
+			if ($usersCount != 0) {
+				$value=mysql_fetch_array($mysqlQuery);
+			}
+
+			if ($isLogin && $value["password"] == $password) {
+				// записываем логин и емейл в сессию
+				$_SESSION['isadmin'] = $value['isadmin'];
+				$_SESSION['name'] = $value['name'];
+			} else if ($isRegister) {
+				if ($value == NULL) {
+					$query = "insert into users (email, name, password) values ('". $email . "', '" . $login . "', '" . $password . "')";
+					if (mysql_query($query)) {
+						$_SESSION['isadmin'] = 0;
+						$_SESSION['name'] = $login;
+					}
+				} else {
+					$badUserName = true;
+				}
+			} else if ($isForgot && $value != NULL) {
+				$to = '=?utf-8?B?'.base64_encode($value["email"]).'?=';
+				$subject = '=?utf-8?B?'.base64_encode("Восстановление пароля").'?=';
+				$headers  = "Content-type: text/html; charset=utf-8\r\n"; 
+				$headers .= "From: Kotova Nastya <kotova4835@gmail.com>\r\n"; 
+				$message = "Ваш пароль: " . $value["password"]; 
+				if (mail($to, $subject, $message, $headers)) {
+					echo "<h3>ПИСЬМО ОТПРАВЛЕНО</h3>";
+				} else {
+					echo "<h3>ПИСЬМО НЕ ОТПРАВЛЕНО</h3>";
+				}
+			}
+
+			mysql_close();
+		}
 	} else {
 		$isLogin = true;
 	}
 ?>
+
+
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -97,147 +155,34 @@
 		
 		<?
 			include 'header_footer/menu.php';
+
+			if ($_SESSION["name"]) {
+		?>
+		<h2 style="color:#01DF01" >Привет, <?=@ $_SESSION["name"] ?></h2>
+
+		<? 
+			} else {
+				include 'registration_div';
+			}
 		?>
 
-		<div class="box">
-			<nav id="tabs" class="tabs">
-				<a id="tabLogin" class=<? echo "'iconLogin " . ($isLogin ? "active" : "") . " blueBox'" ?> title="Войти"></a>
-				<a id="tabRegister" class=<? echo "'iconRegister " . ($isRegister ? "active" : "") . " greenBox'" ?> title="Регистрация"></a>
-				<a id="tabForgot" class=<? echo "'iconForgot " . ($isForgot ? "active" : "") . " redBox'" ?> title="Забыл пароль?"></a>
-			</nav>
-
-			<div class="containerWrapper">
 
 
-				<div id="containerLogin" class=<? echo "'tabContainer " . ($isLogin ? "active" : "") . "'" ?>>
-					<form id="auth_form" method="POST">
-						<input type="hidden" name="login_form"/>
-						<h2 class="loginTitle">Авторизация</h2>
-						<div class="loginContent">
-							<div class="inputWrapper">
-								<input type="text" name="auth_login" id="auth_login_id" onkeyup="CountLogin('auth_login_id','auth_login_view','auth_login_correct','auth_pass_id','auth_pass_correct')" placeholder="Логин" <? if ($isLogin) { echo "value='" . $login . "'";} 
-										if ($isLogin && $isPost) {
-											echo "style='";
-											if ($loginIsValid) { echo "border: 1px solid rgb(86, 155, 68);"; }
-											else { echo "border: 1px solid rgb(255, 0, 0);";}
-											echo "'";
-										} 
-									?> 
-								/>
-								<div class="mini">введено: <span id="auth_login_view">0</span></div>
-								<div class="info" id="auth_login_correct">не менее 5 символов</div>
-							</div>
-						<div class="inputWrapper">
-							<input  type="password" name="auth_pass" id="auth_pass_id" maxLength="20" onkeyup="CountPass('auth_pass_id','auth_pass_view','auth_pass_correct','auth_login_id', 'auth_login_correct')" value="" placeholder="Пароль" 
-							<? if ($isLogin && $isPost) {
-									echo "style='";
-									if ($passIsValid) { echo "border: 1px solid rgb(86, 155, 68);"; }
-									else { echo "border: 1px solid rgb(255, 0, 0);";}
-									echo "'";
-								}
-								?>
-							/>
-						<div class="mini">введено: <span id="auth_pass_view">0</span></div>
-						<div class="info" id="auth_pass_correct">пароль должен содержать от 4 до 20 символов</div>
-						</div>
-					</div>
-					<button style="margin-top: 30px;" class="blueBox"><span class="iconLogin"></span> ВОЙТИ</button>
-					<div class="clear"></div>
-				</form>
-				</div>
 
 
-				<div id="containerRegister" class=<? echo "'tabContainer " . ($isRegister ? "active" : "") . "'" ?>>
-					<form id="reg_form" method="POST">
-						<input type="hidden" name="register_form"/>
-						<h2 class="loginTitle">Регистрация</h2>
-						<div class="registerContent">
-							<div class="inputWrapper">
-								<input type="text" name="reg_email" id="email_id_reg" placeholder="Ваш email" <?
-								if ($isRegister) { 
-									echo "value='" . $email . "'"; 
-									echo "style='"; 
-									if ($emailIsValid) { echo "border: 1px solid rgb(86, 155, 68);"; }
-									else { echo "border: 1px solid rgb(255, 0, 0);";}
-									echo "'";
-								} ?> />
-								<span id="valid_reg"></span>
-							</div>
-						</div>
-
-						<div class="inputWrapper">
-							<input type="text" name="reg_login" id="reg_login_id" onkeyup="CountLogin('reg_login_id','reg_login_view','reg_login_correct','reg_pass_id','reg_pass_correct')" placeholder="Логин" <? if ($isRegister) { echo "value='" . $login . "'"; 
-									echo "style='";
-									if ($loginIsValid) { echo "border: 1px solid rgb(86, 155, 68);"; }
-									else { echo "border: 1px solid rgb(255, 0, 0);";}
-									echo "'";}
-							?> />
-							<div class="mini">введено: <span id="reg_login_view">0</span></div>
-							<div class="info" id="reg_login_correct"> <? if ($isRegister && $loginIsValid) { echo "верно";} else { echo "не менее 5 символов";} ?> </div>
-						</div>
-
-						<div class="inputWrapper">
-							<input  type="password" name="reg_pass" id="reg_pass_id" maxLength="20" onkeyup="CountPass('reg_pass_id','reg_pass_view','reg_pass_correct','reg_login_id','reg_login_correct','reg_repass_id','reg_repass_correct')" value="" placeholder="Пароль" 
-								<?	if ($isRegister) {
-										echo "style='";
-										if ($passIsValid) { echo "border: 1px solid rgb(86, 155, 68);"; }
-										else { echo "border: 1px solid rgb(255, 0, 0);";}
-										echo "'";
-									} 
-								?>
-							/>
-							<div class="mini">введено: <span id="reg_pass_view">0</span></div>
-							<div class="info" id="reg_pass_correct"> <? if ($isRegister && $passIsValid) { echo "верно";} else { echo "длина от 4 до 20 символов и не совпадает с логином";} 
-							?> </div>
-						</div>  
-
-						<div class="inputWrapper" style="margin-top: 45px;">
-							<input type="password" name="reg_repass" id="reg_repass_id" onkeyup="CorrectPass('reg_repass_id','reg_true_pass_view','reg_repass_correct','reg_pass_id')" value="" placeholder="Повторите пароль" 
-								<?	if ($isRegister) {
-										echo "style='";
-										if ($passIsValid) { echo "border: 1px solid rgb(86, 155, 68);"; }
-										else { echo "border: 1px solid rgb(255, 0, 0);";}
-										echo "'";
-									}
-								?>
-							/>
-							<div class="mini">введено: <span id="reg_true_pass_view">0</span></div>
-							<div class="info" id="reg_repass_correct"></div>
-						</div>
-
-						<button class="greenBox"><span class="iconRegister"></span> Зарегистрироваться</button>
-						<div class="clear"></div>
-					</form>
-				</div>
-				<div class="clear"></div>
 
 
-				<div id="containerForgot" class=<? echo "'tabContainer " . ($isForgot ? "active" : "") . "'" ?>>
-					<form id="rec_form" method="POST">
-						<input type="hidden" name="forgot_form"/>
-							<h2 class="loginTitle">Восстановления пароля</h2>
-							<div class="loginContent">
-								<div class="inputWrapper">
-									<input id="email_id_rec"  type="text" name="forgot_email" placeholder="Ваш email" <? if ($isForgot) { echo "value='" . $email . "'";} 
-										if ($isForgot) {
-											echo "style='";
-											if ($emailIsValid) { echo "border: 1px solid rgb(86, 155, 68);"; }
-											else { echo "border: 1px solid rgb(255, 0, 0);";}
-											echo "'";
-										} 
-									?> 
-									/>
-									<span id="valid_rec"></span>
-								</div>
-							<div class="placeholder"></div>
-						</div>
-						<button class="redBox"><span class="iconForgot"></span> Восстановить</button>
-						<div class="clear"></div>
-					</form>
-				</div>
-				<div class="clear"></div>
-			</div>
-		</div>
+
+
+
+
+
+
+
+
+
+
+
 		<script src="form/js/index.js"></script>
 		<script type="text/javascript" src="form/js/main.js"></script>
 
@@ -296,61 +241,68 @@
 		</div>
 
 
-		<div style="text-align: center">
-			<h1 class="green_text">Обратная связь</h1>
-		</div>
-			<?php
-				if (isset($_POST['seen']))
-				{
-					$fio = trim(htmlspecialchars($_POST["fio"]));
-					$el_p = trim(htmlspecialchars($_POST["el_p"]));
-					$theme = trim(htmlspecialchars($_POST["theme"]));
-					$mes = trim(htmlspecialchars($_POST["message"]));
-
-					$sp_mes = NULL;
-					$sp_fio = NULL;
-					$sp_elp = NULL;
-
-					$flag = true;
-
-					if (mb_strlen($fio, "UTF-8") < 15)
+		<?php if ($_SESSION["name"]) {?>
+			<div style="text-align: center">
+				<h1 class="green_text">Обратная связь</h1>
+			</div>
+				<?php
+					if (isset($_POST['seen']))
 					{
-						$sp_fio.="  Заполните поле 'ФИО'";
-						$flag = false;
-					}
-					if((mb_strlen($el_p, "UTF-8") == 0) || (!preg_match("/^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i",$el_p)))
-					{
-						$sp_elp.="  Поле 'Электронная почта' не заполнено, либо введен неверный E-Mail.";
-						$flag = false;
-					}
-					if (mb_strlen($mes, "UTF-8") < 10)
-					{
-						$sp_mes.="  Корректно заполните поле 'Сообщение. Необходимо ввести не менее 10 символов.'";
-						$flag = false;
-					}
+						$fio = trim(htmlspecialchars($_POST["fio"]));
+						$el_p = trim(htmlspecialchars($_POST["el_p"]));
+						$theme = trim(htmlspecialchars($_POST["theme"]));
+						$mes = trim(htmlspecialchars($_POST["message"]));
 
-					if ($flag) {
-						if (mail($el_p, $theme, $fio . ", " . $mes)) {
-							echo "<h3>ПИСЬМО ОТПРАВЛЕНО</h3>";
-							$fio=$el_p=$theme=$mes=NULL;
-						} else {
-							echo "<h3>ПИСЬМО НЕ ОТПРАВЛЕНО</h3>";
+						$sp_mes = NULL;
+						$sp_fio = NULL;
+						$sp_elp = NULL;
+
+						$flag = true;
+
+						if (mb_strlen($fio, "UTF-8") < 15)
+						{
+							$sp_fio.="  Заполните поле 'ФИО'";
+							$flag = false;
+						}
+						if((mb_strlen($el_p, "UTF-8") == 0) || (!preg_match("/^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i",$el_p)))
+						{
+							$sp_elp.="  Поле 'Электронная почта' не заполнено, либо введен неверный E-Mail.";
+							$flag = false;
+						}
+						if (mb_strlen($mes, "UTF-8") < 10)
+						{
+							$sp_mes.="  Корректно заполните поле 'Сообщение. Необходимо ввести не менее 10 символов.'";
+							$flag = false;
+						}
+
+						if ($flag) {
+							$from = '=?utf-8?B?'.base64_encode($el_p).'?=';
+							$subject = '=?utf-8?B?'.base64_encode($theme).'?=';
+							$headers  = "Content-type: text/html; charset=utf-8\r\n"; 
+							$headers .= "From: Kotova Nastya <kotova4835@gmail.com>\r\n"; 
+							if (mail($from, $subject, $fio . ", " . $mes, $headers)) {
+								echo "<h3>ПИСЬМО ОТПРАВЛЕНО</h3>";
+								$fio=$el_p=$theme=$mes=NULL;
+							} else {
+								echo "<h3>ПИСЬМО НЕ ОТПРАВЛЕНО</h3>";
+							}
 						}
 					}
-				}
-			?>
-		<div id="content">
-			<form method='post'>
-				<p>ФИО*: <br> <input style="width: 200px; border: solid 1px #cccccc;" type="text" name="fio" value="<?=@$fio;?>"></input><span style="background:#FF0000;"><?=@$sp_fio;?></span></p>
-				<p>Электронная почта*: <br> <input style="width: 200px; border: solid 1px #cccccc;" type="text" name="el_p" value="<?=@$el_p;?>"></input><span style="background:#FF0000;"><?=@$sp_elp;?></span></p>
-				<p>Тема сообщения: <br> <input style="width: 200px; border: solid 1px #cccccc;" type="text" name="theme"></input></p>
-				<p>Сообщение*:</p>
-				<p><textarea name="message" rows="10" cols="50"><?=@$mes;?></textarea><span style="background:#FF0000;"><?=@$sp_mes;?></span></p>
-				<input type="hidden" name="seen" value="data"></input>
-				<p><input type="submit"  value="Отправить"></input></p>
-			</form>
-		</div>
-			<p><center><a href="<? echo $pathBegin; ?>pages/about.php">О сайте</a></center></p>
+				?>
+
+			<div id="content">
+				<form method='post'>
+					<p>ФИО*: <br> <input style="width: 200px; border: solid 1px #cccccc;" type="text" name="fio" value="<?=@$fio;?>"></input><span style="background:#FF0000;"><?=@$sp_fio;?></span></p>
+					<p>Электронная почта*: <br> <input style="width: 200px; border: solid 1px #cccccc;" type="text" name="el_p" value="<?=@$el_p;?>"></input><span style="background:#FF0000;"><?=@$sp_elp;?></span></p>
+					<p>Тема сообщения: <br> <input style="width: 200px; border: solid 1px #cccccc;" type="text" name="theme"></input></p>
+					<p>Сообщение*:</p>
+					<p><textarea name="message" rows="10" cols="50"><?=@$mes;?></textarea><span style="background:#FF0000;"><?=@$sp_mes;?></span></p>
+					<input type="hidden" name="seen" value="data"></input>
+					<p><input type="submit"  value="Отправить"></input></p>
+				</form>
+			</div>
+		<?} ?>
+		<p><center><a href="<? echo $pathBegin; ?>pages/about.php">О сайте</a></center></p>
 	</div>
 </body>
 </html>
