@@ -1,60 +1,67 @@
 <?
-	header('Content-Type: text/html; charset=utf-8');
-	$pathBegin = '../';
+  header('Content-Type: text/html; charset=utf-8');
+  $pathBegin = '../';
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 
 <head>
-	<? 
-		$titlePage = 'Витамины'; 
-		include $pathBegin . 'header_footer/base_meta.php';
-	?>
-	<link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/styles.css" />
-	<link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/button_styles.css" />
-	<link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/font_styles.css" />
+  <? 
+    $titlePage = 'Витамины'; 
+    include $pathBegin . 'header_footer/base_meta.php';
+  ?>
+  <link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/styles.css" />
+  <link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/button_styles.css" />
+  <link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/font_styles.css" />
 </head>
 
 <body topmargin="0">
-	<div class="center_div">
-		<?
-			include $pathBegin . "header_footer/header.php";
-			include $pathBegin . "header_footer/menu.php";
-		?>
+  <div class="center_div">
+    <?
+      include $pathBegin . "header_footer/header.php";
+      include $pathBegin . "header_footer/menu.php";
+    ?>
 
-		<div>
-			<h1 class="green_text">Витамины</h1>
-			<a href="<?=@$pathBegin;?>image_viewer.php?image=vitamini.jpg"><img alt="Витамины в питании" src="<?=@$pathBegin;?>images/vitamini.jpg" class="vitamini_img" title="Витамины в продуктах питания - овощи" /></a>
+    <!-- Тексты -->
+    <div>
+      <?
+        // Добавляем тексты на страницу с данными id
+        $ids = array(4, 5, 6);
 
-			<p>Витамины являются биологически активными органическими веществами растительного и животного происхождения.</p>
-			<p>Свое название они получили от латинского слова "vita" жизнь и "amine" белок. Буквы алфавита присваивались витаминам по мере открытия. Названия некоторых из них имеют помимо буквенных обозначений словесные, к примеру, витамин А известен еще и как "ретинол".</p>
-			<p>Только в 20 веке в 1911 году витамины были впервые выделены в чистом виде польским исследователем Казимиром Функом. В настоящее время известно их несколько десятков, 21 из них продуцируется и используется в целях профилактики и лечения.</p>
-			
-			<div>
-				<h2>Роль витаминов в питании</h2>
-				<p>Витамины принимают участие в важнейших процессах жизнедеятельности человеческого организма:</p>
-				<ul>
-					<li>влияют на рост и развитие;</li>
-					<li>регулируют обмен веществ, биохимические процессы извлечения энергии из пищи;</li>
-					<li>защищают от болезней и вредных факторов окружающей среды: воздействия радиации, климатических условий, промышленных токсинов, ядохимикатов и т.д.;</li>
-					<li>существенно влияют на степень умственной и физической работоспособности.</li>
-				</ul>
-			</div>
-		</div>
+        // соединяемся с базой
+        $conn = mysql_connect("localhost","nastya4835","4835"); 
+        mysql_select_db("mybd"); 
+        mysql_query("SET NAMES 'utf8'");
 
-		<div>
-			<h2>Недостаток витаминов в организме</h2>
-			<p>Дефицит витаминов оказывают влияние на состояние здоровья, ума и сохранение молодости больше, чем какие-либо иные факторы. Фактически все заболевания начинаются с наличия недостаточного количества того или иного витамина.</p>
-			<p>Недостаток витаминов в организме приводит к следующим последствиям:</p>
-			
-			<ul>
-				<li>снижению работоспособности и сопротивляемости простудным заболеваниям;</li>
-				<li>развитию сердечнососудистых патологий;</li>
-				<li>ухудшению течения любых болезней, замедлением выздоровления.</li>
-			</ul>
-		</div>
-	</div>
+        // составляем запрос
+        $query = "SELECT `title`, `text` FROM `content` WHERE `id` IN (". implode(',', array_map('intval', $ids)) . ");";
+        $mysqlQuery = mysql_query($query);
+        
+        if ($row = mysql_fetch_array($mysqlQuery)) {
+      ?>
+          <div>
+            <h1 class="green_text"><?=@ $row["title"]?></h1>
+
+            <a target="_blank" href="../pages/image_viewer.php?image=vitamini.jpg"><img alt="Витамины в питании" src="../images/vitamini.jpg" class="vitamini_img" title="Витамины в продуктах питания - овощи" /></a>
+
+            <?=@ $row["text"]?>
+          </div>
+      <?
+        }
+        while ($row = mysql_fetch_array($mysqlQuery)) {
+      ?>
+          <div>
+            <h2><?=@ $row["title"]?></h2>
+            
+            <?=@ $row["text"]?>
+          </div>
+      <?
+        }
+        mysql_close();
+      ?>
+    </div>
+  </div>
 </body>
 </html>

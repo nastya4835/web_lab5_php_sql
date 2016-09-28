@@ -1,78 +1,100 @@
 <?
-	header('Content-Type: text/html; charset=utf-8');
-	$pathBegin = '../';
+  header('Content-Type: text/html; charset=utf-8');
+  $pathBegin = '../';
 ?>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 
 <head>
-	<? 
-		$titlePage = 'Спорт'; 
-		include $pathBegin . 'header_footer/base_meta.php';
-	?>
-	<link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/styles.css" />
-	<link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/button_styles.css" />
-	<link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/font_styles.css">
-	<script type="text/javascript" src="<?=@$pathBegin;?>js/jquery-2.2.3.js"></script>
-	<script type="text/javascript" src="<?=@$pathBegin;?>js/main.js"></script>
-	<script type="text/javascript" src="<?=@$pathBegin;?>js/jQueryRotateCompressed.2.2.js"></script>
+  <? 
+    $titlePage = 'Спорт'; 
+    include $pathBegin . 'header_footer/base_meta.php';
+  ?>
+  <link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/styles.css" />
+  <link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/button_styles.css" />
+  <link rel="stylesheet" type="text/css" href="<?=@$pathBegin;?>css/font_styles.css">
+  <script type="text/javascript" src="<?=@$pathBegin;?>js/jquery-2.2.3.js"></script>
+  <script type="text/javascript" src="<?=@$pathBegin;?>js/main.js"></script>
+  <script type="text/javascript" src="<?=@$pathBegin;?>js/jQueryRotateCompressed.2.2.js"></script>
 </head>
 
 <body topmargin="0">
-	<div class="center_div">
-		<?
-			include $pathBegin . 'header_footer/header.php';
-			include $pathBegin . 'header_footer/menu.php';
-		?>
+  <div class="center_div">
+    <?
+      include $pathBegin . 'header_footer/header.php';
+      include $pathBegin . 'header_footer/menu.php';
+    ?>
 
-			<div>
-				<h1 class="green_text">Спорт для похудения</h1> 
-					<em>
-						<p>Здоровое тело - красиво по определению. Но красоту и здоровье нужно уметь поддерживать.</p>
-						<p>Комплекс из 5-ти упражнений на все основные группы мышц поможет не только сохранить красоту, но и усовершенствовать некоторые линии и изгибы. Ведь гибкость - одна из составляющих сексуальности. А все ее преимущества уже давно известны.</p>
-					</em>
-					
-					<a href="<?=@$pathBegin;?>image_viewer.php?image=naklon.jpg"><img class="rotate1 sport_img_right" alt="Разминка" src="<?=@$pathBegin;?>images/naklon.jpg" title="Разминка очень важна" /></a>
-			</div>
+    <!-- Тексты -->
+      <div>
+        <?
+          // Добавляем тексты на страницу с данными id
+          $ids = array(7, 8, 9, 10, 11, 12);
 
-			<div>
-					<h2>Шаг 1 - разминка</h2>
-					<p>Занятия спортом нужно всегда начинать с разминки. Благодаря ей мышцы начинают согреваться и, значит, никаких травм и растяжений не случится. В комплекс упражнения "на разогрев" должны входить: наклоны (прямые ноги на уровне плеч, стараемся руками достать до пола), махи руками.</p>
-					<p>20 минут - и тело готово к тому, чтобы расходовать калории, а также "подбирать" складочки и формировать соблазнительные мышцы там, где недавно был жирок. Разминка закончилась - настоящие упражнения начались.</p>
-					<p><b>Примечание:</b><br>
-					<b class="green_text">За полтора часа до занятий фитнесом следует съесть что-нибудь не очень жирное. Через два часа после тренировки - основательно подкрепиться.</b></p>
-					
-			</div>
+          // соединяемся с базой
+          $conn = mysql_connect("localhost","nastya4835","4835"); 
+          mysql_select_db("mybd"); 
+          mysql_query("SET NAMES 'utf8'");
 
-			<div>
-					<a href="<?=@$pathBegin;?>image_viewer.php?image=bicycle.jpg"><img id="rotate2" class="sport_img_left" alt="Упражнение велосипед" src="<?=@$pathBegin;?>images/bicycle.jpg" title="Упражнение велосипед" /></a>
-					<h2>Шаг 2 - упругий пресс и осиная талия</h2>
-					<p>Один из самых лучших способов стать обладательницей красивого сексуального животика и такой же талии - выполнять упражнение "велосипед". Для этого нужно лечь на спину и начать крутить воображаемые педали. Начни с 1-2 подхода из 10-15 "оборотов", постепенно увеличивая их до 20-30. Чтобы создать максимальную нагрузку на мышцы живота, нужно работать всем корпусом, в то время как согнутая нога должна оставаться неподвижной. Одновременно с вращением ногами отрывай плечи, голову и шею от пола и тянись, как ты можешь, правым плечом к левому колену, и наоборот. Это создаст дополнительную нагрузку на пресс. Повторяй упражнение 10-15 раз.</p>
-					<p><b>Примечание:</b>
-					<b class="green_text">30 минут езды на велосипеде сжигают калории, равные одному "Биг Маку" - т.е. 475 ккал.</b></p>
-					
-			</div>
-
-			<div>
-					<a href="<?=@$pathBegin;?>image_viewer.php?image=hands.jpg"><img class="rotate1 sport_img_right" alt="Упражнения для груди" src="<?=@$pathBegin;?>images/hands.jpg" title="Упражнения для груди" /></a>
-					<h2>Шаг 3 - упражнения для груди</h2>
-					<p>С помощью упражнения ты надолго сможешь сохранить свою грудь упругой, привлекательной и сексуальной. Встань ровно, расправив плечи, и прижми ладони друг к другу на уровне груди. Дави одной ладонью на другую, преодолевая сопротивление. Ты будешь чувствовать, как напрягаются мышцы - это знак того, что они действительно работают.</p>
-			</div>
-
-			<div>
-					<h2>Шаг 4 - красивые руки</h2>
-					<p>Рельефные мышцы плеч выглядят не только сексуально, но и зрительно уменьшают нижнюю часть тела. С подкачанными руками любой открытый топ станет твоим секретным оружием: идеальный наряд для свидания или делового ужина. Так что в твоей фитнес программе не забудь отвести место на упражнения мышц рук. Для этого поставь ноги на ширине плеч, колени должны быть полусогнуты. Руки с гантелями вытяни перед собой (локти должны смотреть в пол). На выдохе медленно поднимай руки вверх (сгибая в локте) до тех пор, пока кисти рук не окажутся перпендикулярно полу. Повторяй упражнение по 2-3 подхода из 8-12 повторов. Гантели не должны быть тяжелыми - максимум 1,5 килограмма. Со временем увеличивай количество подходов, но не вес гантелей, а то можешь перекачать руки.</p>
-			</div>
-
-			<div style="display: table;">				
-					<a href="<?=@$pathBegin;?>image_viewer.php?image=feet.jpg"><img id="rotate3" class="sport_img_left" alt="Упражнение для бедер и ягодиц" src="<?=@$pathBegin;?>images/feet.jpg" title="Упражнение для бедер и ягодиц" /></a>
-					<h2>Шаг 5 - для бедер и ягодиц, от целлюлита</h2>
-					<p>Ложись на бок, согни ноги, голову положи на вытянутую руку. Поднимай и опускай верхнюю ногу - сначала согнутую, затем выпрямленную. Делай 2-3 подхода по 4-8 раз в каждом, затем ляг на другой бок и проделай тоже самое другой ногой.</p>
-					<p><b>Примечание:</b><br>
-					<b class="green_text">Другое эффективное упражнение - это прыжки со скакалкой.</b></p>
-			</div>
-		</div>
+          // составляем запрос
+          $query = "SELECT `title`, `text` FROM `content` WHERE `id` IN (". implode(',', array_map('intval', $ids)) . ");";
+          $mysqlQuery = mysql_query($query);
+          if ($row = mysql_fetch_array($mysqlQuery)) {
+        ?>
+            <div>
+              <h1 class="green_text"><?=@ $row["title"]?></h1>
+              <?=@ $row["text"]?>
+              <a target="_blank" href="../pages/image_viewer.php?image=naklon.jpg"><img class="rotate1 sport_img_right" alt="Разминка" src="../images/naklon.jpg" title="Разминка очень важна" /></a>
+            </div>
+        <?
+          }
+          if ($row = mysql_fetch_array($mysqlQuery)) {
+        ?>
+            <div>
+              <h2><?=@ $row["title"]?></h2>
+              <?=@ $row["text"]?>
+            </div>
+        <?
+          }
+          if ($row = mysql_fetch_array($mysqlQuery)) {
+        ?>
+            <div>
+              <a target="_blank" href="../pages/image_viewer.php?image=bicycle.jpg"><img id="rotate2" class="sport_img_left" alt="Упражнение велосипед" src="../images/bicycle.jpg" title="Упражнение велосипед" /></a>
+              <h2><?=@ $row["title"]?></h2>
+              <?=@ $row["text"]?>
+            </div>
+        <?
+          }
+          if ($row = mysql_fetch_array($mysqlQuery)) {
+        ?>
+            <div>
+              <a target="_blank" href="../pages/image_viewer.php?image=hands.jpg"><img class="rotate1 sport_img_right" alt="Упражнения для груди" src="../images/hands.jpg" title="Упражнения для груди" /></a>
+              <h2><?=@ $row["title"]?></h2>
+              <?=@ $row["text"]?>
+            </div>
+        <?
+          }
+          if ($row = mysql_fetch_array($mysqlQuery)) {
+        ?>
+            <div>
+              <h2><?=@ $row["title"]?></h2>
+              <?=@ $row["text"]?>
+            </div>
+        <?
+          }
+          if ($row = mysql_fetch_array($mysqlQuery)) {
+        ?>
+            <div>
+              <a target="_blank" href="../pages/image_viewer.php?image=feet.jpg"><img id="rotate3" class="sport_img_left" alt="Упражнение для бедер и ягодиц" src="../images/feet.jpg" title="Упражнение для бедер и ягодиц" /></a>
+              <h2><?=@ $row["title"]?></h2>
+              <?=@ $row["text"]?>
+            </div>
+        <?
+          }
+          mysql_close();
+        ?>
+      </div>
+  </div>
 </body>
 </html>
